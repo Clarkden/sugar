@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"sugar/globals/types"
 )
@@ -19,6 +20,8 @@ func BadRequest(w http.ResponseWriter, message string) {
 }
 
 func InternalServerError(w http.ResponseWriter, err error, message string) {
+
+	slog.Error(err.Error())
 
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set("Content-Type", "application/json")
