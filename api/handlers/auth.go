@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
 	sugar "sugar/data"
 	"sugar/helpers/response"
+	"sugar/helpers/utils"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func (h *Handler) HandleEmailLogin() http.HandlerFunc {
@@ -39,6 +44,11 @@ func (h *Handler) HandleEmailRegister() http.HandlerFunc {
 			return
 		}
 
+		if !utils.ValidEmail(request.Email) {
+			response.BadRequest(w, "Invalid field: email")
+			return
+		}
+
 		userParams := sugar.CreateUserParams{
 			Email:    request.Email,
 			Password: request.Password,
@@ -50,13 +60,21 @@ func (h *Handler) HandleEmailRegister() http.HandlerFunc {
 			return
 		}
 
+		sessionId := uuid.New()
+
 		sessionParams := sugar.CreateSessionParams{
-			Userid: &user.ID,
-			Createdat: ,
+			UserID:    sql.NullInt64{Int64: user.ID, Valid: true},
+			SessionID: sql.NullString{String: sessionId.String(), Valid: true},
+			CreatedAt: sql.NullInt64{Int64: time.Now().Unix(), Valid: true},
+			ExpiresAt: sql.NullInt64{Int64: time.Now().Add(24 * time.Hour).Unix(), Valid: true},
 		}
 
-		session, err := h.queries.CreateSession(r.Context())
+		session, err := h.queries.CreateSession(r.Context(), sessionParams)
+		if err != nil {
+			response.InternalServerError(w, err, "Something went wrong")
+			return
+		}
 
-		response.Success(w, "Successfully registered user.", nil)
+		response.Success(w, "Successfully registered user.", session.SessionID)
 	}
 }
