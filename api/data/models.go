@@ -9,10 +9,10 @@ import (
 )
 
 type Session struct {
-	Userid    sql.NullInt64  `json:"userid"`
-	Sessionid sql.NullString `json:"sessionid"`
-	Createdat sql.NullInt64  `json:"createdat"`
-	Expiresat sql.NullInt64  `json:"expiresat"`
+	UserID    sql.NullInt64  `json:"user_id"`
+	SessionID sql.NullString `json:"session_id"`
+	CreatedAt sql.NullInt64  `json:"created_at"`
+	ExpiresAt sql.NullInt64  `json:"expires_at"`
 }
 
 type User struct {

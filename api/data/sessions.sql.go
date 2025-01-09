@@ -11,73 +11,73 @@ import (
 )
 
 const createSession = `-- name: CreateSession :one
-INSERT INTO sessions (userId, sessionId, createdAt, expiresAt) VALUES (?, ?, ?, ?) RETURNING userid, sessionid, createdat, expiresat
+INSERT INTO sessions (user_id, session_id, created_at, expires_at) VALUES (?, ?, ?, ?) RETURNING user_id, session_id, created_at, expires_at
 `
 
 type CreateSessionParams struct {
-	Userid    sql.NullInt64  `json:"userid"`
-	Sessionid sql.NullString `json:"sessionid"`
-	Createdat sql.NullInt64  `json:"createdat"`
-	Expiresat sql.NullInt64  `json:"expiresat"`
+	UserID    sql.NullInt64  `json:"user_id"`
+	SessionID sql.NullString `json:"session_id"`
+	CreatedAt sql.NullInt64  `json:"created_at"`
+	ExpiresAt sql.NullInt64  `json:"expires_at"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
 	row := q.db.QueryRowContext(ctx, createSession,
-		arg.Userid,
-		arg.Sessionid,
-		arg.Createdat,
-		arg.Expiresat,
+		arg.UserID,
+		arg.SessionID,
+		arg.CreatedAt,
+		arg.ExpiresAt,
 	)
 	var i Session
 	err := row.Scan(
-		&i.Userid,
-		&i.Sessionid,
-		&i.Createdat,
-		&i.Expiresat,
+		&i.UserID,
+		&i.SessionID,
+		&i.CreatedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }
 
 const deleteSessionByID = `-- name: DeleteSessionByID :exec
-DELETE FROM sessions WHERE sessionId = ?
+DELETE FROM sessions WHERE session_id = ?
 `
 
-func (q *Queries) DeleteSessionByID(ctx context.Context, sessionid sql.NullString) error {
-	_, err := q.db.ExecContext(ctx, deleteSessionByID, sessionid)
+func (q *Queries) DeleteSessionByID(ctx context.Context, sessionID sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, deleteSessionByID, sessionID)
 	return err
 }
 
-const deleteSessionsByUserID = `-- name: DeleteSessionsByUserID :exec
-DELETE FROM sessions WHERE userId = ?
+const deleteSessionsByuser_id = `-- name: DeleteSessionsByuser_id :exec
+DELETE FROM sessions WHERE user_id = ?
 `
 
-func (q *Queries) DeleteSessionsByUserID(ctx context.Context, userid sql.NullInt64) error {
-	_, err := q.db.ExecContext(ctx, deleteSessionsByUserID, userid)
+func (q *Queries) DeleteSessionsByuser_id(ctx context.Context, userID sql.NullInt64) error {
+	_, err := q.db.ExecContext(ctx, deleteSessionsByuser_id, userID)
 	return err
 }
 
 const getSessionByID = `-- name: GetSessionByID :one
-SELECT userid, sessionid, createdat, expiresat FROM sessions WHERE sessionId = ? LIMIT 1
+SELECT user_id, session_id, created_at, expires_at FROM sessions WHERE session_id = ? LIMIT 1
 `
 
-func (q *Queries) GetSessionByID(ctx context.Context, sessionid sql.NullString) (Session, error) {
-	row := q.db.QueryRowContext(ctx, getSessionByID, sessionid)
+func (q *Queries) GetSessionByID(ctx context.Context, sessionID sql.NullString) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getSessionByID, sessionID)
 	var i Session
 	err := row.Scan(
-		&i.Userid,
-		&i.Sessionid,
-		&i.Createdat,
-		&i.Expiresat,
+		&i.UserID,
+		&i.SessionID,
+		&i.CreatedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }
 
-const getSessionsByUserId = `-- name: GetSessionsByUserId :many
-SELECT userid, sessionid, createdat, expiresat FROM sessions WHERE userId = ?
+const getSessionsByuser_id = `-- name: GetSessionsByuser_id :many
+SELECT user_id, session_id, created_at, expires_at FROM sessions WHERE user_id = ?
 `
 
-func (q *Queries) GetSessionsByUserId(ctx context.Context, userid sql.NullInt64) ([]Session, error) {
-	rows, err := q.db.QueryContext(ctx, getSessionsByUserId, userid)
+func (q *Queries) GetSessionsByuser_id(ctx context.Context, userID sql.NullInt64) ([]Session, error) {
+	rows, err := q.db.QueryContext(ctx, getSessionsByuser_id, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +86,10 @@ func (q *Queries) GetSessionsByUserId(ctx context.Context, userid sql.NullInt64)
 	for rows.Next() {
 		var i Session
 		if err := rows.Scan(
-			&i.Userid,
-			&i.Sessionid,
-			&i.Createdat,
-			&i.Expiresat,
+			&i.UserID,
+			&i.SessionID,
+			&i.CreatedAt,
+			&i.ExpiresAt,
 		); err != nil {
 			return nil, err
 		}
@@ -105,31 +105,31 @@ func (q *Queries) GetSessionsByUserId(ctx context.Context, userid sql.NullInt64)
 }
 
 const updateSessionByID = `-- name: UpdateSessionByID :one
-UPDATE sessions SET userId = ?, sessionId = ?, createdAt = ?, expiresAt = ? WHERE userId = ? RETURNING userid, sessionid, createdat, expiresat
+UPDATE sessions SET user_id = ?, session_id = ?, created_at = ?, expires_at = ? WHERE user_id = ? RETURNING user_id, session_id, created_at, expires_at
 `
 
 type UpdateSessionByIDParams struct {
-	Userid    sql.NullInt64  `json:"userid"`
-	Sessionid sql.NullString `json:"sessionid"`
-	Createdat sql.NullInt64  `json:"createdat"`
-	Expiresat sql.NullInt64  `json:"expiresat"`
-	Userid_2  sql.NullInt64  `json:"userid_2"`
+	UserID    sql.NullInt64  `json:"user_id"`
+	SessionID sql.NullString `json:"session_id"`
+	CreatedAt sql.NullInt64  `json:"created_at"`
+	ExpiresAt sql.NullInt64  `json:"expires_at"`
+	UserID_2  sql.NullInt64  `json:"user_id_2"`
 }
 
 func (q *Queries) UpdateSessionByID(ctx context.Context, arg UpdateSessionByIDParams) (Session, error) {
 	row := q.db.QueryRowContext(ctx, updateSessionByID,
-		arg.Userid,
-		arg.Sessionid,
-		arg.Createdat,
-		arg.Expiresat,
-		arg.Userid_2,
+		arg.UserID,
+		arg.SessionID,
+		arg.CreatedAt,
+		arg.ExpiresAt,
+		arg.UserID_2,
 	)
 	var i Session
 	err := row.Scan(
-		&i.Userid,
-		&i.Sessionid,
-		&i.Createdat,
-		&i.Expiresat,
+		&i.UserID,
+		&i.SessionID,
+		&i.CreatedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }

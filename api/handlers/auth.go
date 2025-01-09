@@ -50,7 +50,10 @@ func (h *Handler) HandleEmailRegister() http.HandlerFunc {
 			return
 		}
 
-		sessionParams := sugar.CreateSessionParams{}
+		sessionParams := sugar.CreateSessionParams{
+			Userid: &user.ID,
+			Createdat: ,
+		}
 
 		session, err := h.queries.CreateSession(r.Context())
 

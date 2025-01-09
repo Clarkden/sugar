@@ -1,17 +1,17 @@
 -- name: CreateSession :one
-INSERT INTO sessions (userId, sessionId, createdAt, expiresAt) VALUES (?, ?, ?, ?) RETURNING *;
+INSERT INTO sessions (user_id, session_id, created_at, expires_at) VALUES (?, ?, ?, ?) RETURNING *;
 
 -- name: GetSessionByID :one
-SELECT * FROM sessions WHERE sessionId = ? LIMIT 1;
+SELECT * FROM sessions WHERE session_id = ? LIMIT 1;
 
--- name: GetSessionsByUserId :many
-SELECT * FROM sessions WHERE userId = ?;
+-- name: GetSessionsByuser_id :many
+SELECT * FROM sessions WHERE user_id = ?;
 
 -- name: DeleteSessionByID :exec
-DELETE FROM sessions WHERE sessionId = ?;
+DELETE FROM sessions WHERE session_id = ?;
 
--- name: DeleteSessionsByUserID :exec
-DELETE FROM sessions WHERE userId = ?;
+-- name: DeleteSessionsByuser_id :exec
+DELETE FROM sessions WHERE user_id = ?;
 
 -- name: UpdateSessionByID :one
-UPDATE sessions SET userId = ?, sessionId = ?, createdAt = ?, expiresAt = ? WHERE userId = ? RETURNING *;
+UPDATE sessions SET user_id = ?, session_id = ?, created_at = ?, expires_at = ? WHERE user_id = ? RETURNING *;
