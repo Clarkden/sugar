@@ -44,3 +44,15 @@ func Success(w http.ResponseWriter, message string, data interface{}) {
 		Data:    data,
 	})
 }
+
+func Unauthorized(w http.ResponseWriter, message string) {
+
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&types.ApiResponse{
+		Code:    http.StatusUnauthorized,
+		Message: message,
+		Success: true,
+		Data:    nil,
+	})
+}

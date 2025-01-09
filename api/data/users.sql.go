@@ -10,10 +10,7 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO
-    users (email, password)
-VALUES
-    (?, ?) RETURNING id, email, password
+INSERT INTO users (email, password) VALUES (?, ?) RETURNING id, email, password
 `
 
 type CreateUserParams struct {
@@ -29,9 +26,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM users
-WHERE
-    id = ?
+DELETE FROM users WHERE id = ?
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
@@ -39,29 +34,30 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
-const getUser = `-- name: GetUser :one
-SELECT
-    id, email, password
-FROM
-    users
-WHERE
-    id = ?
-LIMIT
-    1
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, password FROM users where email = ? LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, id)
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(&i.ID, &i.Email, &i.Password)
+	return i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, email, password FROM users WHERE id = ? LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT
-    id, email, password
-FROM
-    users
+SELECT id, email, password FROM users
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
@@ -88,12 +84,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 }
 
 const updateUser = `-- name: UpdateUser :exec
-UPDATE users
-SET
-    email = ?,
-    password = ?
-WHERE
-    id = ?
+UPDATE users SET email = ?, password = ? WHERE id = ?
 `
 
 type UpdateUserParams struct {
