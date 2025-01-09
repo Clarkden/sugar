@@ -56,3 +56,15 @@ func Unauthorized(w http.ResponseWriter, message string) {
 		Data:    nil,
 	})
 }
+
+func Conflict(w http.ResponseWriter, message string) {
+
+	w.WriteHeader(http.StatusConflict)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&types.ApiResponse{
+		Code:    http.StatusConflict,
+		Message: message,
+		Success: true,
+		Data:    nil,
+	})
+}

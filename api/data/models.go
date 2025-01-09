@@ -4,15 +4,11 @@
 
 package sugar
 
-import (
-	"database/sql"
-)
-
 type Session struct {
-	UserID    sql.NullInt64  `json:"user_id"`
-	SessionID sql.NullString `json:"session_id"`
-	CreatedAt sql.NullInt64  `json:"created_at"`
-	ExpiresAt sql.NullInt64  `json:"expires_at"`
+	UserID    *int64  `json:"user_id"`
+	SessionID *string `json:"session_id"`
+	CreatedAt *int64  `json:"created_at"`
+	ExpiresAt *int64  `json:"expires_at"`
 }
 
 type User struct {

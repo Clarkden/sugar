@@ -1,17 +1,16 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
-	"log"
+	"errors"
 	"net/http"
 	sugar "sugar/data"
 	"sugar/globals/auth"
+	auth_helper "sugar/helpers/auth"
 	"sugar/helpers/response"
 	"sugar/helpers/utils"
-	"time"
 
-	"github.com/google/uuid"
+	sqlite3 "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -58,18 +57,19 @@ func (h *Handler) HandleEmailRegister() http.HandlerFunc {
 
 		user, err := h.queries.CreateUser(r.Context(), userParams)
 		if err != nil {
-			log.Print(err)
+			var sqliteErr sqlite3.Error
+			if errors.As(err, &sqliteErr) {
+				if sqliteErr.Code == sqlite3.ErrConstraint || sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+					response.Conflict(w, "User already exists with this email")
+					return
+				}
+			}
+
+			response.InternalServerError(w, err, "Something went wrong")
 			return
 		}
 
-		sessionId := uuid.New()
-
-		sessionParams := sugar.CreateSessionParams{
-			UserID:    sql.NullInt64{Int64: user.ID, Valid: true},
-			SessionID: sql.NullString{String: sessionId.String(), Valid: true},
-			CreatedAt: sql.NullInt64{Int64: time.Now().Unix(), Valid: true},
-			ExpiresAt: sql.NullInt64{Int64: time.Now().Add(24 * 30 * time.Hour).Unix(), Valid: true},
-		}
+		sessionParams := auth_helper.CreateSessionParams(user.ID)
 
 		session, err := h.queries.CreateSession(r.Context(), sessionParams)
 		if err != nil {
@@ -122,14 +122,7 @@ func (h *Handler) HandleEmailLogin() http.HandlerFunc {
 			return
 		}
 
-		sessionId := uuid.New()
-
-		sessionParams := sugar.CreateSessionParams{
-			UserID:    sql.NullInt64{Int64: user.ID, Valid: true},
-			SessionID: sql.NullString{String: sessionId.String(), Valid: true},
-			CreatedAt: sql.NullInt64{Int64: time.Now().Unix(), Valid: true},
-			ExpiresAt: sql.NullInt64{Int64: time.Now().Add(24 * 30 * time.Hour).Unix(), Valid: true},
-		}
+		sessionParams := auth_helper.CreateSessionParams(user.ID)
 
 		session, err := h.queries.CreateSession(r.Context(), sessionParams)
 		if err != nil {

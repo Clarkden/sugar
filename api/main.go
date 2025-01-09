@@ -12,6 +12,7 @@ import (
 	"sugar/handlers"
 	"sugar/router"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
 	"github.com/rs/cors"
 )
@@ -23,7 +24,7 @@ func main() {
 
 	db := initDB()
 
-	goose.SetBaseFS(embedMigrations)
+	// goose.SetBaseFS(embedMigrations)
 
 	if err := goose.SetDialect("sqlite3"); err != nil {
 		panic(err)
@@ -53,13 +54,15 @@ func main() {
 
 	router := c.Handler(router.NewRouter(&routerConfig, h))
 
+	log.Println("Server is starting on port: ", port)
+
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
 
 func initDB() *sql.DB {
-	db, err := sql.Open("sqlite", "data.db")
+	db, err := sql.Open("sqlite3", "data.db")
 	if err != nil {
 		log.Fatal(err)
 	}
