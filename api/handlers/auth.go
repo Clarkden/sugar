@@ -50,6 +50,10 @@ func (h *Handler) HandleEmailRegister() http.HandlerFunc {
 			return
 		}
 
+		sessionParams := sugar.CreateSessionParams{}
+
+		session, err := h.queries.CreateSession(r.Context())
+
 		response.Success(w, "Successfully registered user.", nil)
 	}
 }

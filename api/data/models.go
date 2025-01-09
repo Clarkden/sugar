@@ -4,6 +4,17 @@
 
 package sugar
 
+import (
+	"database/sql"
+)
+
+type Session struct {
+	Userid    sql.NullInt64  `json:"userid"`
+	Sessionid sql.NullString `json:"sessionid"`
+	Createdat sql.NullInt64  `json:"createdat"`
+	Expiresat sql.NullInt64  `json:"expiresat"`
+}
+
 type User struct {
 	ID       int64  `json:"id"`
 	Email    string `json:"email"`
