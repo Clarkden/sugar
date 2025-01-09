@@ -9,6 +9,7 @@ import (
 	sugar "sugar/data"
 	"sugar/globals/auth"
 	"sugar/helpers/response"
+	"time"
 
 	sqlite3 "github.com/mattn/go-sqlite3"
 )
@@ -67,6 +68,25 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 
 			response.InternalServerError(w, err, "Something went wrong")
 			return
+		}
+
+		if session.ExpiresAt != nil && *session.ExpiresAt <= time.Now().Add(24*15*time.Hour).Unix() {
+
+			updatedExpiration := time.Now().Add(24 * 30 * time.Hour).Unix()
+
+			updateSessionParams := sugar.UpdateSessionByIDParams{
+				UserID:    session.UserID,
+				SessionID: session.SessionID,
+				CreatedAt: session.CreatedAt,
+				ExpiresAt: &updatedExpiration,
+			}
+
+			session, err = m.queries.UpdateSessionByID(r.Context(), updateSessionParams)
+			if err != nil {
+				slog.Error(err.Error())
+				response.InternalServerError(w, err, "Something went wrong")
+				return
+			}
 		}
 
 		ctx := context.WithValue(r.Context(), auth.SessionKey, session)
