@@ -133,3 +133,9 @@ func (h *Handler) HandleEmailLogin() http.HandlerFunc {
 		response.Success(w, "Successfully logged in user.", session.SessionID)
 	}
 }
+
+func (h *Handler) HandleValidateSession() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+	}
+}

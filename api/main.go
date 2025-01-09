@@ -10,6 +10,7 @@ import (
 	sugar "sugar/data"
 	"sugar/globals/types"
 	"sugar/handlers"
+	"sugar/middleware"
 	"sugar/router"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -17,7 +18,7 @@ import (
 	"github.com/rs/cors"
 )
 
-// go:embed data/migrations/*
+// go:embed data/migrations/*.sql
 var embedMigrations embed.FS
 
 func main() {
@@ -46,13 +47,13 @@ func main() {
 		AllowedHeaders: []string{"*"},
 	})
 
-	routerConfig := types.RouterConfig{}
-
 	q := sugar.New(db)
 
+	routerConfig := types.RouterConfig{}
 	h := handlers.NewHandler(q)
+	m := middleware.NewMiddleware(q)
 
-	router := c.Handler(router.NewRouter(&routerConfig, h))
+	router := c.Handler(router.NewRouter(&routerConfig, h, m))
 
 	log.Println("Server is starting on port: ", port)
 

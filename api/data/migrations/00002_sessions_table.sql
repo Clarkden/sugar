@@ -7,7 +7,7 @@ CREATE TABLE
         created_at INTEGER,
         expires_at INTEGER,
         FOREIGN KEY (user_id) REFERENCES users (id)
-    )
+    );
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin

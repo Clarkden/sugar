@@ -8,7 +8,7 @@ import (
 	"sugar/middleware"
 )
 
-func NewRouter(c *types.RouterConfig, h *handlers.Handler) *http.ServeMux {
+func NewRouter(c *types.RouterConfig, h *handlers.Handler, m *middleware.Middleware) *http.ServeMux {
 
 	if c == nil {
 		log.Fatal("Router config not provided")
@@ -26,7 +26,7 @@ func NewRouter(c *types.RouterConfig, h *handlers.Handler) *http.ServeMux {
 		})
 
 		if len(noAuth) == 0 || !noAuth[0] {
-			finalHandler = middleware.AuthMiddleware(finalHandler)
+			finalHandler = m.AuthMiddleware(finalHandler)
 		}
 
 		router.Handle(method+" /v1"+pattern, finalHandler)
@@ -36,8 +36,15 @@ func NewRouter(c *types.RouterConfig, h *handlers.Handler) *http.ServeMux {
 		v1Group("/auth"+pattern, handler, method, noAuth...)
 	}
 
-	authGroup("/email/register", h.HandleEmailRegister(), http.MethodPost)
-	authGroup("/email/login", h.HandleEmailLogin(), http.MethodPost)
+	authGroup("/email/register", h.HandleEmailRegister(), http.MethodPost, true)
+	authGroup("/email/login", h.HandleEmailLogin(), http.MethodPost, true)
+
+	couponGroup := func(pattern string, handler http.HandlerFunc, method string, noAuth ...bool) {
+		v1Group("/coupons"+pattern, handler, method, noAuth...)
+	}
+
+	couponGroup("", h.HandleCreateDomainCoupon(), http.MethodPost)
+	couponGroup("/{domain}", h.HandleGetDomainCoupons(), http.MethodGet)
 
 	return router
 }
