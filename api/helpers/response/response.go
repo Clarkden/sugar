@@ -52,7 +52,7 @@ func Unauthorized(w http.ResponseWriter, message string) {
 	json.NewEncoder(w).Encode(&types.ApiResponse{
 		Code:    http.StatusUnauthorized,
 		Message: message,
-		Success: true,
+		Success: false,
 		Data:    nil,
 	})
 }
@@ -64,7 +64,7 @@ func Conflict(w http.ResponseWriter, message string) {
 	json.NewEncoder(w).Encode(&types.ApiResponse{
 		Code:    http.StatusConflict,
 		Message: message,
-		Success: true,
+		Success: false,
 		Data:    nil,
 	})
 }

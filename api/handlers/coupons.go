@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	sugar "sugar/data"
 	"sugar/helpers/response"
@@ -18,7 +19,8 @@ func (h *Handler) HandleGetDomainCoupons() http.HandlerFunc {
 
 		codes, err := h.queries.GetCouponsByDomain(r.Context(), &domain)
 		if err != nil {
-
+			log.Print("Here")
+			response.InternalServerError(w, err, "Something went wrong")
 			return
 		}
 
