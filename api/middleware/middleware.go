@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -58,6 +59,11 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 
 		session, err := m.queries.GetSessionByID(r.Context(), &sessionId)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				response.Unauthorized(w, "Invalid session")
+				return
+			}
+
 			var sqliteErr sqlite3.Error
 			if errors.As(err, &sqliteErr) {
 				if sqliteErr.Code == sqlite3.ErrNotFound {
